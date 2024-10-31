@@ -7,7 +7,7 @@ import pickle
 import os
 
 # URL do modelo no Google Drive (substitua "SEU_ID_DO_ARQUIVO" pelo ID real)
-MODEL_URL = "https://drive.google.com/uc?export=download&id=https://drive.google.com/uc?export=download&id=1cXHett1s4pkRKNRKKal_oguRlFkhRvqY"
+MODEL_URL = "https://drive.google.com/file/d/1cXHett1s4pkRKNRKKal_oguRlFkhRvqY/view?usp=sharing"
 
 
 @st.cache_resource
