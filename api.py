@@ -26,11 +26,12 @@ def load_model():
         model = pickle.load(f)
     model.eval()
     return model
+    if os.path.getsize(model_path) < 1_000_000:  # Exemplo: tamanho mínimo de 1 MB
+        st.error("Erro ao baixar o modelo. Verifique o link de download e tente novamente.")
+        return None
 
 model = load_model()
-if os.path.getsize(model_path) < 1_000_000:  # Exemplo: tamanho mínimo de 1 MB
-    st.error("Erro ao baixar o modelo. Verifique o link de download e tente novamente.")
-    return None
+
 
 
 # Definir classes de doenças
