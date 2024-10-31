@@ -7,7 +7,8 @@ import pickle
 import os
 
 # URL do modelo no Google Drive (substitua "SEU_ID_DO_ARQUIVO" pelo ID real)
-MODEL_URL = "https://drive.google.com/file/d/1cXHett1s4pkRKNRKKal_oguRlFkhRvqY/view?usp=drive_link"
+MODEL_URL = "https://drive.google.com/uc?export=download&id=1cXHett1s4pkRKNRKKal_oguRlFkhRvqY"
+
 
 @st.cache_resource
 def load_model():
