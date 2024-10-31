@@ -14,23 +14,20 @@ MODEL_URL = "https://drive.google.com/file/d/1cXHett1s4pkRKNRKKal_oguRlFkhRvqY/v
 def load_model():
     model_path = "sugarcane.pkl"
     
-    # Baixar o modelo se não estiver no diretório atual
     if not os.path.exists(model_path):
         with st.spinner("Baixando o modelo..."):
             response = requests.get(MODEL_URL)
             with open(model_path, "wb") as f:
                 f.write(response.content)
 
-    # Carregar o modelo
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
-    model.eval()
-    return model
-    if os.path.getsize(model_path) < 1_000_000:  # Exemplo: tamanho mínimo de 1 MB
-        st.error("Erro ao baixar o modelo. Verifique o link de download e tente novamente.")
+    if os.path.getsize(model_path) < 1_000_000:  # Verifica se o arquivo tem pelo menos 1 MB
+        st.error("Erro ao baixar o modelo. Verifique o link e tente novamente.")
         return None
 
-model = load_model()
+    with open(model_path, "rb") as f:
+        model = pickle.load(f)
+    return model
+
 
 
 
