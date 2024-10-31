@@ -2,39 +2,49 @@ import streamlit as st
 from PIL import Image
 import torch
 import torchvision.transforms as transforms
+import requests
 import pickle
-import numpy as np
+import os
 
-# Configurar o dispositivo (GPU ou CPU)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# URL do modelo no Google Drive
+MODEL_URL = "https://drive.google.com/file/d/1cXHett1s4pkRKNRKKal_oguRlFkhRvqY/view?usp=drive_link"
 
-# Título e descrição
-st.title("Classificação de Doenças na Folha da Cana-de-Açúcar")
-st.write("Faça o upload de uma imagem de uma folha de cana para classificar a doença.")
-
-# Carregar o modelo treinado e mover para o dispositivo
+# Função para baixar e carregar o modelo
 @st.cache_resource
 def load_model():
-    with open('sugarcane.pkl', 'rb') as f:
+    model_path = "sugarcane.pkl"
+    
+    # Baixar o modelo se não estiver no diretório atual
+    if not os.path.exists(model_path):
+        with st.spinner("Baixando o modelo..."):
+            response = requests.get(MODEL_URL)
+            with open(model_path, "wb") as f:
+                f.write(response.content)
+
+    # Carregar o modelo
+    with open(model_path, "rb") as f:
         model = pickle.load(f)
-    model = model.to(device)
     model.eval()
     return model
 
 model = load_model()
 
-# Definir classes
+# Definir classes de doenças
 classes = ['Healthy', 'Mosaic', 'RedHot', 'Rust', 'Yellow']
 
-# Definir função de pré-processamento da imagem
+# Função de pré-processamento da imagem
 def preprocess_image(image):
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
-    image = transform(image).unsqueeze(0)  # Adiciona dimensão de batch
-    return image.to(device)  # Mover a imagem para o dispositivo correto
+    image = transform(image).unsqueeze(0)
+    return image
+
+# Interface do Streamlit
+st.title("Classificação de Doenças na Folha da Cana-de-Açúcar")
+st.write("Faça o upload de uma imagem de uma folha de cana para classificar a doença.")
 
 # Upload de imagem
 uploaded_file = st.file_uploader("Escolha uma imagem...", type=["jpg", "jpeg", "png"])
@@ -54,4 +64,3 @@ if uploaded_file is not None:
     
     # Exibir o resultado
     st.write(f"**Classe Predita:** {predicted_class}")
-
