@@ -6,30 +6,35 @@ import requests
 import pickle
 import os
 
-# URL do modelo no Google Drive
+# URL do modelo no Google Drive (substitua "SEU_ID_DO_ARQUIVO" pelo ID real)
 MODEL_URL = "https://drive.google.com/file/d/1cXHett1s4pkRKNRKKal_oguRlFkhRvqY/view?usp=drive_link"
 
-# Função para baixar e carregar o modelo
 @st.cache_resource
 def load_model():
     model_path = "sugarcane.pkl"
     
+    # Baixar o modelo se não estiver no diretório atual
     if not os.path.exists(model_path):
         with st.spinner("Baixando o modelo..."):
             response = requests.get(MODEL_URL)
             with open(model_path, "wb") as f:
                 f.write(response.content)
 
-    if os.path.getsize(model_path) < 1_000_000:  # Verifica se o arquivo tem pelo menos 1 MB
-        st.error("Erro ao baixar o modelo. Verifique o link e tente novamente.")
+    # Verificar o tamanho do arquivo
+    if os.path.getsize(model_path) < 1_000_000:  # Exemplo: tamanho mínimo de 1 MB
+        st.error("Erro ao baixar o modelo. Verifique o link de download e tente novamente.")
         return None
 
+    # Carregar o modelo
     with open(model_path, "rb") as f:
         model = pickle.load(f)
+    model.eval()
     return model
 
-
-
+# Carregar o modelo
+model = load_model()
+if model is None:
+    st.stop()  # Interrompe a execução se o modelo não for carregado corretamente
 
 # Definir classes de doenças
 classes = ['Healthy', 'Mosaic', 'RedHot', 'Rust', 'Yellow']
@@ -58,7 +63,7 @@ if uploaded_file is not None:
     # Pré-processar a imagem
     image_tensor = preprocess_image(image)
     
-    # Realizar a previsão
+    # Realizar a previsão, se o modelo foi carregado corretamente
     with torch.no_grad():
         output = model(image_tensor)
         prediction = torch.argmax(output, dim=1).item()
